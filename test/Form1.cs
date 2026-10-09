@@ -1,4 +1,4 @@
-
+//TODO: сделать уровни. когда ломаешь планки должна показаться трава. когда ломаешь траву должна показаться пещера. Здоровье. Животные. Деревья. Бесконечная генерация. Структуры, сундуки, декорации, враги, боссы
 
 namespace test
 {
@@ -17,7 +17,7 @@ namespace test
         private int CurrentHeroX = 0;
         private int CurrentHeroY = 0;
         static int[] inventory = new int[3] { 1, 2, 0 };
-        static int selectedSlot = 0;
+        static int selectedSlot = 1;
 
         public Form1()
         {
@@ -73,14 +73,25 @@ namespace test
             int distanseX = Math.Abs(CurrentHeroX - tileX);
             int distanseY = Math.Abs(CurrentHeroY - tileY);
 
+            int currentItem = inventory[selectedSlot];
 
             if
                 (distanseX <=2 && distanseY<= 2 && 
-                    (grid[tileX, tileY] != 1 && grid[tileX, tileY] != 3 && grid[tileX, tileY]!=2
+                    (grid[tileX, tileY] != 1 && grid[tileX, tileY] != 3 && grid[tileX, tileY]!=2 
                     )
                 )
             {
-                grid[tileX, tileY] = 4;
+                if(currentItem== 1)
+                {
+                    grid[tileX, tileY] = 4;
+                }
+                else if(currentItem == 2)
+                {
+                    grid[tileX, tileY] = 5;
+                }
+                
+
+                
             }
 
         }
@@ -97,8 +108,12 @@ namespace test
                 return;
             }
 
+            if (e.KeyCode == Keys.D1) selectedSlot = 0;
+            if (e.KeyCode == Keys.D2) selectedSlot = 1;
+            if (e.KeyCode == Keys.D3) selectedSlot = 2;
 
-          
+
+
 
             int newHeroX = CurrentHeroX;
             int newHeroY = CurrentHeroY;
@@ -136,7 +151,7 @@ namespace test
                 newHeroY = 0;
             }
 
-            if (grid[newHeroX, newHeroY] == 1)
+            if (grid[newHeroX, newHeroY] == 1 || grid[newHeroX, newHeroY] == 5)
             {
                 newHeroX = CurrentHeroX;
                 newHeroY = CurrentHeroY;
