@@ -16,6 +16,8 @@ namespace test
 
         private int CurrentHeroX = 0;
         private int CurrentHeroY = 0;
+        static int[] inventory = new int[3] { 1, 2, 0 };
+        static int selectedSlot = 0;
 
         public Form1()
         {
@@ -25,8 +27,22 @@ namespace test
 
             DoubleBuffered = true;
 
-    
+            BasicWorldGeneration();
 
+
+            KeyDown += Form1_KeyDown;
+            MouseDown += Form1_MouseDown;
+
+            System.Windows.Forms.Timer timer = new();
+            timer.Interval = 16;
+            timer.Tick += Timer_Tick;
+            timer.Start();
+
+
+            
+        }
+        private void BasicWorldGeneration()
+        {
             grid[1, 1] = 1;
             grid[1, 2] = 1;
             grid[1, 3] = 1;
@@ -38,20 +54,10 @@ namespace test
             grid[3, 1] = 1;
             grid[3, 2] = 1;
             grid[3, 3] = 1;
-           
+
             grid[CurrentHeroX, CurrentHeroY] = 2;
 
-
-            KeyDown += Form1_KeyDown;
-            MouseDown += Form1_MouseDown;
-
-            System.Windows.Forms.Timer timer = new();
-            timer.Interval = 16;
-            timer.Tick += Timer_Tick;
-            timer.Start();
-
         }
-
         private void Form1_MouseDown(object? sender, MouseEventArgs e)
         {
             float scaleX = (float) bitmapWidth / ClientSize.Width;
@@ -174,11 +180,44 @@ namespace test
                             case (4):
                                 color = Brushes.Gray;
                                 break;
+                            case (5):
+                                color = Brushes.Yellow;
+                                break;
                             default:
                                 color = Brushes.LimeGreen;
                                 break;
                         }
                         g.FillRectangle(color, columnPixelCoords, RowPixelCoords, tilesize - 1, tilesize - 1);
+                    }
+                }
+
+
+                int slotSize = 22;
+                int startX = (bitmapWidth - (3 * slotSize)) / 2;
+                int startY = bitmapHeight - slotSize - 5;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    int x = startX + (i * slotSize);
+                    g.FillRectangle(Brushes.DarkGray, x, y: startY, slotSize-2, slotSize-2);
+
+                    if(i == selectedSlot)
+                    {
+                        g.DrawRectangle(Pens.Yellow, x, startY, slotSize -2, slotSize -2);
+                    }
+                    else
+                    {
+                        g.DrawRectangle(Pens.Black, x, startY, slotSize - 2, slotSize - 2);
+                    }
+
+                    int itemId = inventory[i];
+                    if(itemId == 1)
+                    {
+                        g.FillRectangle(Brushes.Black, x + 4, startY + 4, slotSize-2-7, slotSize-2-7);
+                    }
+                    else if (itemId == 2) 
+                    {
+                        g.FillRectangle(Brushes.Yellow, x + 4, startY + 4, slotSize - 2 - 7, slotSize - 2 - 7);
                     }
                 }
             }
@@ -204,8 +243,7 @@ namespace test
             {
                 e.Graphics.DrawImage(frameBuffer, 0, 0, ClientSize.Width, ClientSize.Height);
             }
-            
-            
+
         }
     }
 }
