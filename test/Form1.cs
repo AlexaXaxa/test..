@@ -1,22 +1,32 @@
-//TODO: сделать уровни. когда ломаешь планки должна показаться трава. когда ломаешь траву должна показаться пещера. Здоровье. Животные. Деревья. Бесконечная генерация. Структуры, сундуки, декорации, враги, боссы
+
+
 
 namespace test
 {
     public partial class Form1 : Form
     {
+        private Bitmap frameBuffer = new Bitmap(bitmapWidth, bitmapHeight);
         static int bitmapWidth = 320;
         static int bitmapHeight = 240;
-        static int tilesize = 20;
-        private Bitmap frameBuffer = new Bitmap(bitmapWidth, bitmapHeight);
-        private static int gridSizeX = bitmapWidth/tilesize;
-        static int gridSizeY = bitmapHeight/tilesize;
-        int[,] grid = new int[gridSizeX, gridSizeY];
         
+
+
         private bool IsSharp = false;
+
+
+        static int tilesize = 20;
+        private static int amountOfGridColumns = bitmapWidth/tilesize;
+        static int amountOfGridRows = bitmapHeight/tilesize;
+
+
+        //grid has amountOfGridColumns elements (arrays) and each of them have amountOfGridRows 
+        Stack<int>[,] grid = new Stack<int>[amountOfGridRows, amountOfGridColumns];
+        
 
         private int CurrentHeroX = 0;
         private int CurrentHeroY = 0;
-        static int[] inventory = new int[3] { 1, 2, 0 };
+
+        static int[] inventory = new int[3];
         static int selectedSlot = 1;
 
         public Form1()
@@ -27,8 +37,9 @@ namespace test
 
             DoubleBuffered = true;
 
+            GridInitializer();
             BasicWorldGeneration();
-
+            CreateAnInventory();
 
             KeyDown += Form1_KeyDown;
             MouseDown += Form1_MouseDown;
@@ -36,27 +47,43 @@ namespace test
             System.Windows.Forms.Timer timer = new();
             timer.Interval = 16;
             timer.Tick += Timer_Tick;
-            timer.Start();
+            timer.Start();            
+        }
 
+        private void GridInitializer()
+        {
+            for (int Row = 0; Row < grid.GetLength(0); Row += 1)
+            {
+                for (int Column = 0; Column < grid.GetLength(1); Column += 1)
+                {
+                    grid[Row, Column] = new();
+                    grid[Row, Column].Push(0);
 
-            
+                }
+            }
         }
         private void BasicWorldGeneration()
         {
-            grid[1, 1] = 1;
-            grid[1, 2] = 1;
-            grid[1, 3] = 1;
+            grid[1, 1].Push(1);
+            grid[1, 2].Push(1);
+            grid[1, 3].Push(1);
 
-            grid[2, 1] = 1;
-            grid[2, 2] = 3;
-            grid[2, 3] = 1;
+            grid[2, 1].Push(1);
+            grid[2, 2].Push(3);
+            grid[2, 3].Push(1);
 
-            grid[3, 1] = 1;
-            grid[3, 2] = 1;
-            grid[3, 3] = 1;
+            grid[3, 1].Push(1);
+            grid[3, 2].Push(1);
+            grid[3, 3].Push(1);
 
-            grid[CurrentHeroX, CurrentHeroY] = 2;
+            grid[CurrentHeroY, CurrentHeroX].Push(2);
 
+        }
+        private void CreateAnInventory()
+        {
+            inventory[0] = 1; //tool
+            inventory[1] = 2; //block
+            inventory[2] = 3; //empty
         }
         private void Form1_MouseDown(object? sender, MouseEventArgs e)
         {
@@ -75,26 +102,28 @@ namespace test
 
             int currentItem = inventory[selectedSlot];
 
+            //if not equal to 
             if
-                (distanseX <=2 && distanseY<= 2 && 
-                    (grid[tileX, tileY] != 1 && grid[tileX, tileY] != 3 && grid[tileX, tileY]!=2 
+                (distanseX <= 2 && distanseY <= 2 && 
+                    (grid[tileY, tileX].Peek() != 1 && grid[tileY, tileX].Peek() != 3 && grid[tileY, tileX].Peek() !=2 
                     )
                 )
             {
                 if(currentItem== 1)
                 {
-                    grid[tileX, tileY] = 4;
+                    Console.WriteLine("обязательно доделаю это попозже");
+                    //grid[tileY, tileX] = 4; //void
                 }
                 else if(currentItem == 2)
                 {
-                    grid[tileX, tileY] = 5;
+                    grid[tileY, tileX].Push(5); //planks
                 }
-                
-
                 
             }
 
         }
+
+
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.D)
@@ -111,9 +140,6 @@ namespace test
             if (e.KeyCode == Keys.D1) selectedSlot = 0;
             if (e.KeyCode == Keys.D2) selectedSlot = 1;
             if (e.KeyCode == Keys.D3) selectedSlot = 2;
-
-
-
 
             int newHeroX = CurrentHeroX;
             int newHeroY = CurrentHeroY;
@@ -134,11 +160,11 @@ namespace test
                     break;
 
             }
-            if(newHeroX> gridSizeX-1)
+            if(newHeroX> amountOfGridColumns-1)
             {
                 newHeroX = CurrentHeroX;
             }
-            if (newHeroY > gridSizeY-1)
+            if (newHeroY > amountOfGridRows-1)
             {
                 newHeroY = CurrentHeroY;
             }
@@ -151,14 +177,14 @@ namespace test
                 newHeroY = 0;
             }
 
-            if (grid[newHeroX, newHeroY] == 1 || grid[newHeroX, newHeroY] == 5)
+            if (grid[newHeroY, newHeroX].Peek() == 1 || grid[newHeroY, newHeroX].Peek() == 5)
             {
                 newHeroX = CurrentHeroX;
                 newHeroY = CurrentHeroY;
             }
 
-            grid[CurrentHeroX, CurrentHeroY] = 0;
-            grid[newHeroX, newHeroY] = 2;
+            grid[CurrentHeroY, CurrentHeroX].Push(0);
+            grid[newHeroY, newHeroX].Push(2);
 
             CurrentHeroX = newHeroX;
             CurrentHeroY = newHeroY;
@@ -173,35 +199,42 @@ namespace test
                 g.Clear(Color.Black);
                 Brush color; 
 
-                for (int  x = 0; x< gridSizeX; x++)
+                for (int x = 0; x< amountOfGridColumns; x++)
                 {
-                    for (int y = 0; y< gridSizeY; y++)
+                    for (int y = 0; y< amountOfGridRows; y++)
                     {
                         int columnPixelCoords = x * tilesize;
                         int RowPixelCoords = y * tilesize;
                         
 
-                        switch (grid[x, y])
+                        switch (grid[y, x].Peek())
                         {
+                            //water
                             case (1):
                                 color = Brushes.Blue;
                                 break;
+                            //player
                             case (2):
                                 color = Brushes.Red;
                                 break;
+                            //deepw water
                             case (3):
                                 color = Brushes.DarkBlue;
                                 break;
+                            //void
                             case (4):
                                 color = Brushes.Gray;
                                 break;
+                            //planks
                             case (5):
                                 color = Brushes.Yellow;
                                 break;
                             default:
+                                //grass
                                 color = Brushes.LimeGreen;
                                 break;
                         }
+
                         g.FillRectangle(color, columnPixelCoords, RowPixelCoords, tilesize - 1, tilesize - 1);
                     }
                 }
