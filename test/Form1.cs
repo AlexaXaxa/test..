@@ -25,7 +25,7 @@ namespace test
 
         static int[] inventory = new int[3];
         static int selectedSlot = 1;
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -44,7 +44,33 @@ namespace test
             System.Windows.Forms.Timer timer = new();
             timer.Interval = 16;
             timer.Tick += Timer_Tick;
-            timer.Start();            
+            timer.Start();
+
+            MouseWheel += Form1_MouseWheel;
+        }
+
+        private void Form1_MouseWheel(object? sender, MouseEventArgs e)
+        {
+            int notches = e.Delta / 120;
+            selectedSlot = selectedSlot + notches;
+
+            if (selectedSlot < 0)
+            {
+                while(selectedSlot < -(inventory.Length))
+                {
+                    selectedSlot = selectedSlot + inventory.Length;
+                }
+                selectedSlot = inventory.Length + selectedSlot;
+            }
+            else
+            {
+                while (selectedSlot > inventory.Length - 1)
+                {
+                    selectedSlot = selectedSlot - inventory.Length;
+                }
+            }
+            
+          
         }
 
         private void GridInitializer()
