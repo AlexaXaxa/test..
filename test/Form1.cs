@@ -1,6 +1,3 @@
-
-
-
 namespace test
 {
     public partial class Form1 : Form
@@ -38,7 +35,7 @@ namespace test
             DoubleBuffered = true;
 
             GridInitializer();
-            BasicWorldGeneration();
+            WorldGeneration();
             CreateAnInventory();
 
             KeyDown += Form1_KeyDown;
@@ -57,13 +54,23 @@ namespace test
                 for (int Column = 0; Column < grid.GetLength(1); Column += 1)
                 {
                     grid[Row, Column] = new();
-                    grid[Row, Column].Push(0);
+                    grid[Row, Column].Push(4);
 
                 }
             }
         }
-        private void BasicWorldGeneration()
+        private void WorldGeneration()
         {
+
+            for (int Row = 0; Row < grid.GetLength(0); Row += 1)
+            {
+                for (int Column = 0; Column < grid.GetLength(1); Column += 1)
+                {
+                    grid[Row, Column].Push(0);
+
+                }
+            }
+
             grid[1, 1].Push(1);
             grid[1, 2].Push(1);
             grid[1, 3].Push(1);
@@ -85,6 +92,8 @@ namespace test
             inventory[1] = 2; //block
             inventory[2] = 3; //empty
         }
+
+
         private void Form1_MouseDown(object? sender, MouseEventArgs e)
         {
             float scaleX = (float) bitmapWidth / ClientSize.Width;
@@ -109,16 +118,24 @@ namespace test
                     )
                 )
             {
+                // кирка
                 if(currentItem== 1)
-                {
-                    Console.WriteLine("обязательно доделаю это попозже");
-                    //grid[tileY, tileX] = 4; //void
+                {  
+                    if(grid[tileY, tileX].Count > 1)
+                    {
+                        grid[tileY, tileX].Pop();
+                    }                      
                 }
+                // планки
                 else if(currentItem == 2)
                 {
                     grid[tileY, tileX].Push(5); //planks
                 }
-                
+                else if (currentItem == 3)
+                {
+                    grid[tileY, tileX].Push(0); //grass
+                }
+
             }
 
         }
@@ -177,13 +194,16 @@ namespace test
                 newHeroY = 0;
             }
 
-            if (grid[newHeroY, newHeroX].Peek() == 1 || grid[newHeroY, newHeroX].Peek() == 5)
+            if (grid[newHeroY, newHeroX].Peek() == 1 || grid[newHeroY, newHeroX].Peek() == 5 || grid[newHeroY, newHeroX].Peek() == 4)
             {
                 newHeroX = CurrentHeroX;
-                newHeroY = CurrentHeroY;
+                newHeroY = CurrentHeroY;    
             }
-
-            grid[CurrentHeroY, CurrentHeroX].Push(0);
+            //more than 2 because beneath player must be 1)void 2)grass or something else
+            if (grid[CurrentHeroY, CurrentHeroX].Count > 2) 
+            { 
+                grid[CurrentHeroY, CurrentHeroX].Pop(); 
+            }
             grid[newHeroY, newHeroX].Push(2);
 
             CurrentHeroX = newHeroX;
@@ -223,7 +243,7 @@ namespace test
                                 break;
                             //void
                             case (4):
-                                color = Brushes.Gray;
+                                color = Brushes.Black;
                                 break;
                             //planks
                             case (5):
