@@ -25,7 +25,9 @@ namespace test
 
         static int[] inventory = new int[3];
         static int selectedSlot = 1;
-        
+        Label coordsHero;
+        Label coordsMouse;
+       
         public Form1()
         {
             InitializeComponent();
@@ -40,13 +42,41 @@ namespace test
 
             KeyDown += Form1_KeyDown;
             MouseDown += Form1_MouseDown;
+            MouseWheel += Form1_MouseWheel;
+            MouseMove += Form1_MouseMove;
+
+            
+            
+            coordsHero = new();
+            coordsMouse = new();
+            coordsHero.AutoSize = true;
+            coordsMouse.AutoSize = true;
+            coordsMouse.Dock =DockStyle.Right;
+            Controls.Add(coordsHero);
+            Controls.Add(coordsMouse);
 
             System.Windows.Forms.Timer timer = new();
             timer.Interval = 16;
             timer.Tick += Timer_Tick;
             timer.Start();
 
-            MouseWheel += Form1_MouseWheel;
+            
+        }
+
+        private void Form1_MouseMove(object? sender, MouseEventArgs e)
+        {
+            float scaleX = (float)bitmapWidth / ClientSize.Width;
+            float scaleY = (float)bitmapHeight / ClientSize.Height;
+
+            int bitmapMouseX = (int)(e.X * scaleX);
+            int bitmapMouseY = (int)(e.Y * scaleY);
+
+            int tileX = bitmapMouseX / tilesize;
+            int tileY = bitmapMouseY / tilesize;
+            Stack<int> cell = grid[tileY, tileX];
+            int Zmouse = cell.Count - 1;
+
+            coordsMouse.Text = String.Format("Mouse Z - level: {0}", Zmouse.ToString());
         }
 
         private void Form1_MouseWheel(object? sender, MouseEventArgs e)
@@ -126,7 +156,7 @@ namespace test
             float scaleY = (float) bitmapHeight / ClientSize.Height;
 
             int bitmapMouseX = (int)(e.X * scaleX);
-            int bitmapMouseY = (int)(e.Y * scaleY);
+            int bitmapMouseY = (int)(e.Location.Y * scaleY);
 
             int tileX = bitmapMouseX / tilesize;
             int tileY = bitmapMouseY / tilesize;
@@ -225,6 +255,9 @@ namespace test
                 newHeroX = CurrentHeroX;
                 newHeroY = CurrentHeroY;    
             }
+
+            
+
             //more than 2 because beneath player must be 1)void 2)grass or something else
             if (grid[CurrentHeroY, CurrentHeroX].Count > 2) 
             { 
@@ -239,7 +272,7 @@ namespace test
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-
+            
             using (Graphics g = Graphics.FromImage(frameBuffer))
             {
                 g.Clear(Color.Black);
@@ -251,6 +284,7 @@ namespace test
                     {
                         int columnPixelCoords = x * tilesize;
                         int RowPixelCoords = y * tilesize;
+
                         
 
                         switch (grid[y, x].Peek())
@@ -314,12 +348,19 @@ namespace test
                         g.FillRectangle(Brushes.Yellow, x + 4, startY + 4, slotSize - 2 - 7, slotSize - 2 - 7);
                     }
                 }
+
+                DisplayCoords();
             }
 
             Invalidate();
         }
 
-
+        private void DisplayCoords()
+        {
+            int Zhero = grid[CurrentHeroY, CurrentHeroX].Count() -2;
+            string s = "Hero Z-level: " + Zhero.ToString();
+            coordsHero.Text = s;
+        }
 
 
         protected override void OnPaint(PaintEventArgs e)
