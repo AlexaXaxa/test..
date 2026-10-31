@@ -20,8 +20,8 @@ namespace test
         Stack<int>[,] grid = new Stack<int>[amountOfGridRows, amountOfGridColumns];
         
 
-        private int CurrentHeroX = 0;
-        private int CurrentHeroY = 0;
+        private int CurrentHeroX = 5;
+        private int CurrentHeroY = 5;
 
         static int[] inventory = new int[3];
         static int selectedSlot = 1;
@@ -117,27 +117,27 @@ namespace test
         }
         private void WorldGeneration()
         {
-
-            for (int Row = 0; Row < grid.GetLength(0); Row += 1)
+            for (int i = 0; i<2; i++)
             {
-                for (int Column = 0; Column < grid.GetLength(1); Column += 1)
+                for (int Row = 0; Row < grid.GetLength(0); Row += 1)
                 {
-                    grid[Row, Column].Push(0);
+                    for (int Column = 0; Column < grid.GetLength(1); Column += 1)
+                    {
+                        grid[Row, Column].Push(0);
 
+                    }
                 }
             }
-
-            grid[1, 1].Push(1);
-            grid[1, 2].Push(1);
-            grid[1, 3].Push(1);
-
-            grid[2, 1].Push(1);
-            grid[2, 2].Push(3);
-            grid[2, 3].Push(1);
-
-            grid[3, 1].Push(1);
-            grid[3, 2].Push(1);
-            grid[3, 3].Push(1);
+            
+            for (int i = 0; i < 4; i++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    grid[i, x].Pop();
+                    grid[i, x].Push(1);
+                }
+            }
+            
 
             grid[CurrentHeroY, CurrentHeroX].Push(2);
 
@@ -199,6 +199,7 @@ namespace test
 
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
+            #region HotKeys
             if (e.Control && e.KeyCode == Keys.D)
             {
                 DoubleBuffered = !DoubleBuffered;
@@ -214,6 +215,9 @@ namespace test
             if (e.KeyCode == Keys.D2) selectedSlot = 1;
             if (e.KeyCode == Keys.D3) selectedSlot = 2;
 
+            #endregion
+
+            #region HeroMovement
             int newHeroX = CurrentHeroX;
             int newHeroY = CurrentHeroY;
 
@@ -250,23 +254,29 @@ namespace test
                 newHeroY = 0;
             }
 
-            if (grid[newHeroY, newHeroX].Peek() == 1 || grid[newHeroY, newHeroX].Peek() == 5 || grid[newHeroY, newHeroX].Peek() == 4)
+            Console.WriteLine("new hero count "+grid[newHeroY, newHeroX].Count());
+            Console.WriteLine("current hero count " + (grid[CurrentHeroY, CurrentHeroX].Count()-1).ToString()+"\n");
+
+            if (grid[newHeroY, newHeroX].Peek() != 1 && grid[newHeroY, newHeroX].Peek() != 4 && (grid[newHeroY, newHeroX].Count() - (grid[CurrentHeroY, CurrentHeroX].Count()-1)) < 2)
             {
-                newHeroX = CurrentHeroX;
-                newHeroY = CurrentHeroY;    
+                //more than 2 because beneath player must be 1)void 2)grass or something else
+                if (grid[CurrentHeroY, CurrentHeroX].Count > 2)
+                {
+                    grid[CurrentHeroY, CurrentHeroX].Pop();
+                }
+                grid[newHeroY, newHeroX].Push(2);
+
+                CurrentHeroX = newHeroX;
+                CurrentHeroY = newHeroY;
+ 
             }
 
-            
 
-            //more than 2 because beneath player must be 1)void 2)grass or something else
-            if (grid[CurrentHeroY, CurrentHeroX].Count > 2) 
-            { 
-                grid[CurrentHeroY, CurrentHeroX].Pop(); 
-            }
-            grid[newHeroY, newHeroX].Push(2);
+            newHeroX = CurrentHeroX;
+            newHeroY = CurrentHeroY;
 
-            CurrentHeroX = newHeroX;
-            CurrentHeroY = newHeroY;
+
+            #endregion
         }
 
 
