@@ -137,8 +137,9 @@ namespace test
                     grid[i, x].Push(Blocks.Water);
                 }
             }
-            
 
+            //Player.Y = CurrentHeroY
+            //Player.X = CurrentHeroX
             grid[CurrentHeroY, CurrentHeroX].Push(Blocks.Player);
 
         }
@@ -253,17 +254,23 @@ namespace test
             {
                 newHeroY = 0;
             }
+            
+            Console.WriteLine("new hero count " + grid[newHeroY, newHeroX].Count());
 
-            Console.WriteLine("new hero count "+grid[newHeroY, newHeroX].Count());
+            //Console.WriteLine("current hero count " + (grid[CurrentHeroY, CurrentHeroX].Count()-1).ToString()+"\n");
             Console.WriteLine("current hero count " + (grid[CurrentHeroY, CurrentHeroX].Count()-1).ToString()+"\n");
 
             if (grid[newHeroY, newHeroX].Peek() != Blocks.Water && grid[newHeroY, newHeroX].Peek() != Blocks.Void && (grid[newHeroY, newHeroX].Count() - (grid[CurrentHeroY, CurrentHeroX].Count()-1)) < 2)
             {
+                //i dont remember why i wrote this but i leave it here
                 //more than 2 because beneath player must be 1)void 2)grass or something else
-                if (grid[CurrentHeroY, CurrentHeroX].Count > 2)
-                {
-                    grid[CurrentHeroY, CurrentHeroX].Pop();
-                }
+                //if (grid[CurrentHeroY, CurrentHeroX].Count > 2)
+                //{
+
+                //}
+
+                //Player(MoveTo(newHeroY, newHeroX));
+                grid[CurrentHeroY, CurrentHeroX].Pop();
                 grid[newHeroY, newHeroX].Push(Blocks.Player);
 
                 CurrentHeroX = newHeroX;
@@ -287,7 +294,7 @@ namespace test
             {
                 g.Clear(Color.Black);
                 Brush color; 
-
+                
                 for (int x = 0; x< amountOfGridColumns; x++)
                 {
                     for (int y = 0; y< amountOfGridRows; y++)
@@ -299,23 +306,23 @@ namespace test
 
                         switch (grid[y, x].Peek())
                         {
-                            //water
+                           
                             case (Blocks.Water):
                                 color = Brushes.Blue;
                                 break;
-                            //player
+                           
                             case (Blocks.Player):
                                 color = Brushes.Red;
                                 break;
-                            //deep water
+                            
                             case (Blocks.DeepWater):
                                 color = Brushes.DarkBlue;
                                 break;
-                            //void
+                        
                             case (Blocks.Void):
                                 color = Brushes.Black;
                                 break;
-                            //planks
+                           
                             case (Blocks.Planks):
                                 color = Brushes.Yellow;
                                 break;
@@ -365,8 +372,27 @@ namespace test
             Invalidate();
         }
 
+        //private void DeepnessFilter()
+        //{
+        //    using (Graphics g = Graphics.FromImage(frameBuffer));
+
+        //    for (int x = 0; x < amountOfGridColumns; x++)
+        //    {
+        //        for (int y = 0; y < amountOfGridRows; y++)
+        //        {
+        //            grid[y, x]
+        //            grid[y, x].Count();
+        //        }
+        //    }
+        //            Brush brush = new SolidBrush(Color.FromArgb(alpha, 0, 0, 0));
+
+
+            
+
+        //}
         private void DisplayCoords()
         {
+            // int Zhero = Player.Z
             int Zhero = grid[CurrentHeroY, CurrentHeroX].Count() -2;
             string s = "Hero Z-level: " + Zhero.ToString();
             coordsHero.Text = s;
