@@ -17,7 +17,7 @@ namespace test
 
 
         //grid has amountOfGridColumns elements (arrays) and each of them have amountOfGridRows 
-        Stack<int>[,] grid = new Stack<int>[amountOfGridRows, amountOfGridColumns];
+        Stack<Blocks>[,] grid = new Stack<Blocks>[amountOfGridRows, amountOfGridColumns];
         
 
         private int CurrentHeroX = 5;
@@ -73,7 +73,7 @@ namespace test
 
             int tileX = bitmapMouseX / tilesize;
             int tileY = bitmapMouseY / tilesize;
-            Stack<int> cell = grid[tileY, tileX];
+            Stack<Blocks> cell = grid[tileY, tileX];
             int Zmouse = cell.Count - 1;
 
             coordsMouse.Text = String.Format("Mouse Z - level: {0}", Zmouse.ToString());
@@ -110,7 +110,7 @@ namespace test
                 for (int Column = 0; Column < grid.GetLength(1); Column += 1)
                 {
                     grid[Row, Column] = new();
-                    grid[Row, Column].Push(4);
+                    grid[Row, Column].Push(Blocks.Void);
 
                 }
             }
@@ -123,7 +123,7 @@ namespace test
                 {
                     for (int Column = 0; Column < grid.GetLength(1); Column += 1)
                     {
-                        grid[Row, Column].Push(0);
+                        grid[Row, Column].Push(Blocks.Grass);
 
                     }
                 }
@@ -134,12 +134,12 @@ namespace test
                 for (int x = 0; x < 4; x++)
                 {
                     grid[i, x].Pop();
-                    grid[i, x].Push(1);
+                    grid[i, x].Push(Blocks.Water);
                 }
             }
             
 
-            grid[CurrentHeroY, CurrentHeroX].Push(2);
+            grid[CurrentHeroY, CurrentHeroX].Push(Blocks.Player);
 
         }
         private void CreateAnInventory()
@@ -170,7 +170,7 @@ namespace test
             //if not equal to 
             if
                 (distanseX <= 2 && distanseY <= 2 && 
-                    (grid[tileY, tileX].Peek() != 1 && grid[tileY, tileX].Peek() != 3 && grid[tileY, tileX].Peek() !=2 
+                    (grid[tileY, tileX].Peek() != Blocks.Water && grid[tileY, tileX].Peek() != Blocks.DeepWater && grid[tileY, tileX].Peek() != Blocks.Player 
                     )
                 )
             {
@@ -185,11 +185,11 @@ namespace test
                 // планки
                 else if(currentItem == 2)
                 {
-                    grid[tileY, tileX].Push(5); //planks
+                    grid[tileY, tileX].Push(Blocks.Planks); //planks
                 }
                 else if (currentItem == 3)
                 {
-                    grid[tileY, tileX].Push(0); //grass
+                    grid[tileY, tileX].Push(Blocks.Grass); //grass
                 }
 
             }
@@ -257,14 +257,14 @@ namespace test
             Console.WriteLine("new hero count "+grid[newHeroY, newHeroX].Count());
             Console.WriteLine("current hero count " + (grid[CurrentHeroY, CurrentHeroX].Count()-1).ToString()+"\n");
 
-            if (grid[newHeroY, newHeroX].Peek() != 1 && grid[newHeroY, newHeroX].Peek() != 4 && (grid[newHeroY, newHeroX].Count() - (grid[CurrentHeroY, CurrentHeroX].Count()-1)) < 2)
+            if (grid[newHeroY, newHeroX].Peek() != Blocks.Water && grid[newHeroY, newHeroX].Peek() != Blocks.Void && (grid[newHeroY, newHeroX].Count() - (grid[CurrentHeroY, CurrentHeroX].Count()-1)) < 2)
             {
                 //more than 2 because beneath player must be 1)void 2)grass or something else
                 if (grid[CurrentHeroY, CurrentHeroX].Count > 2)
                 {
                     grid[CurrentHeroY, CurrentHeroX].Pop();
                 }
-                grid[newHeroY, newHeroX].Push(2);
+                grid[newHeroY, newHeroX].Push(Blocks.Player);
 
                 CurrentHeroX = newHeroX;
                 CurrentHeroY = newHeroY;
@@ -300,23 +300,23 @@ namespace test
                         switch (grid[y, x].Peek())
                         {
                             //water
-                            case (1):
+                            case (Blocks.Water):
                                 color = Brushes.Blue;
                                 break;
                             //player
-                            case (2):
+                            case (Blocks.Player):
                                 color = Brushes.Red;
                                 break;
-                            //deepw water
-                            case (3):
+                            //deep water
+                            case (Blocks.DeepWater):
                                 color = Brushes.DarkBlue;
                                 break;
                             //void
-                            case (4):
+                            case (Blocks.Void):
                                 color = Brushes.Black;
                                 break;
                             //planks
-                            case (5):
+                            case (Blocks.Planks):
                                 color = Brushes.Yellow;
                                 break;
                             default:
