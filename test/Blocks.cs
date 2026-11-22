@@ -1,5 +1,5 @@
 ﻿
-enum Blocks
+public enum Blocks
 {
     Grass = 0,
     Water = 1,

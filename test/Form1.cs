@@ -2,6 +2,7 @@ namespace test
 {
     public partial class Form1 : Form
     {
+        #region vars
         private Bitmap frameBuffer = new Bitmap(bitmapWidth, bitmapHeight);
         static int bitmapWidth = 320;
         static int bitmapHeight = 240;
@@ -12,22 +13,25 @@ namespace test
 
 
         static int tilesize = 20;
-        private static int amountOfGridColumns = bitmapWidth/tilesize;
+        static int amountOfGridColumns = bitmapWidth/tilesize;
         static int amountOfGridRows = bitmapHeight/tilesize;
-
 
         //grid has amountOfGridColumns elements (arrays) and each of them have amountOfGridRows 
         Stack<Blocks>[,] grid = new Stack<Blocks>[amountOfGridRows, amountOfGridColumns];
         
 
-        private int CurrentHeroX = 5;
-        private int CurrentHeroY = 5;
+
+        private int setHeroX = 5;
+        private int setHeroY = 5;
 
         static int[] inventory = new int[3];
         static int selectedSlot = 1;
+
         Label coordsHero;
         Label coordsMouse;
-       
+
+        Player player;
+        #endregion
         public Form1()
         {
             InitializeComponent();
@@ -63,6 +67,13 @@ namespace test
             
         }
 
+
+
+        /// <summary>
+        /// coords display method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_MouseMove(object? sender, MouseEventArgs e)
         {
             float scaleX = (float)bitmapWidth / ClientSize.Width;
@@ -78,7 +89,11 @@ namespace test
 
             coordsMouse.Text = String.Format("Mouse Z - level: {0}", Zmouse.ToString());
         }
-
+        /// <summary>
+       /// Inventory method
+       /// </summary>
+       /// <param name="sender"></param>
+       /// <param name="e"></param>
         private void Form1_MouseWheel(object? sender, MouseEventArgs e)
         {
             int notches = e.Delta / 120;
@@ -138,10 +153,7 @@ namespace test
                 }
             }
 
-            //Player.Y = CurrentHeroY
-            //Player.X = CurrentHeroX
-            grid[CurrentHeroY, CurrentHeroX].Push(Blocks.Player);
-
+            player = new Player(setHeroY, setHeroX, grid);
         }
         private void CreateAnInventory()
         {
@@ -150,7 +162,11 @@ namespace test
             inventory[2] = 3; //empty
         }
 
-
+        /// <summary>
+        /// Building method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_MouseDown(object? sender, MouseEventArgs e)
         {
             float scaleX = (float) bitmapWidth / ClientSize.Width;
@@ -163,8 +179,8 @@ namespace test
             int tileY = bitmapMouseY / tilesize;
 
 
-            int distanseX = Math.Abs(CurrentHeroX - tileX);
-            int distanseY = Math.Abs(CurrentHeroY - tileY);
+            int distanseX = Math.Abs(player.X - tileX);
+            int distanseY = Math.Abs(player.Y - tileY);
 
             int currentItem = inventory[selectedSlot];
 
@@ -197,7 +213,11 @@ namespace test
 
         }
 
-
+        /// <summary>
+        /// Walking/hotkeys method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
             #region HotKeys
@@ -219,8 +239,9 @@ namespace test
             #endregion
 
             #region HeroMovement
-            int newHeroX = CurrentHeroX;
-            int newHeroY = CurrentHeroY;
+
+            int newHeroX = player.X;
+            int newHeroY = player.Y;
 
             switch (e.KeyCode)
             {
@@ -240,11 +261,11 @@ namespace test
             }
             if(newHeroX> amountOfGridColumns-1)
             {
-                newHeroX = CurrentHeroX;
+                newHeroX = player.X;
             }
             if (newHeroY > amountOfGridRows-1)
             {
-                newHeroY = CurrentHeroY;
+                newHeroY = player.Y;
             }
             if (newHeroX < 0)
             {
@@ -254,39 +275,25 @@ namespace test
             {
                 newHeroY = 0;
             }
-            
-            Console.WriteLine("new hero count " + grid[newHeroY, newHeroX].Count());
+           
 
-            //Console.WriteLine("current hero count " + (grid[CurrentHeroY, CurrentHeroX].Count()-1).ToString()+"\n");
-            Console.WriteLine("current hero count " + (grid[CurrentHeroY, CurrentHeroX].Count()-1).ToString()+"\n");
-
-            if (grid[newHeroY, newHeroX].Peek() != Blocks.Water && grid[newHeroY, newHeroX].Peek() != Blocks.Void && (grid[newHeroY, newHeroX].Count() - (grid[CurrentHeroY, CurrentHeroX].Count()-1)) < 2)
+            if (grid[newHeroY, newHeroX].Peek() != Blocks.Water 
+                && grid[newHeroY, newHeroX].Peek() != Blocks.Void 
+                && (grid[newHeroY, newHeroX].Count() - player.GroundCount() < 2))
             {
-                //i dont remember why i wrote this but i leave it here
-                //more than 2 because beneath player must be 1)void 2)grass or something else
-                //if (grid[CurrentHeroY, CurrentHeroX].Count > 2)
-                //{
-
-                //}
-
-                //Player(MoveTo(newHeroY, newHeroX));
-                grid[CurrentHeroY, CurrentHeroX].Pop();
-                grid[newHeroY, newHeroX].Push(Blocks.Player);
-
-                CurrentHeroX = newHeroX;
-                CurrentHeroY = newHeroY;
- 
+                player.MoveTo(newHeroY, newHeroX); 
             }
-
-
-            newHeroX = CurrentHeroX;
-            newHeroY = CurrentHeroY;
-
-
             #endregion
         }
 
 
+
+        #region Rendering
+        /// <summary>
+        /// Rendering method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Timer_Tick(object? sender, EventArgs e)
         {
             
@@ -371,7 +378,12 @@ namespace test
 
             Invalidate();
         }
-
+        private void DisplayCoords()
+        {
+            int Zhero = player.Z();
+            string s = "Hero Z-level: " + Zhero.ToString();
+            coordsHero.Text = s;
+        }
         //private void DeepnessFilter()
         //{
         //    using (Graphics g = Graphics.FromImage(frameBuffer));
@@ -387,18 +399,9 @@ namespace test
         //            Brush brush = new SolidBrush(Color.FromArgb(alpha, 0, 0, 0));
 
 
-            
+
 
         //}
-        private void DisplayCoords()
-        {
-            // int Zhero = Player.Z
-            int Zhero = grid[CurrentHeroY, CurrentHeroX].Count() -2;
-            string s = "Hero Z-level: " + Zhero.ToString();
-            coordsHero.Text = s;
-        }
-
-
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -416,5 +419,6 @@ namespace test
             }
 
         }
+        #endregion 
     }
 }

@@ -8,26 +8,44 @@ namespace test
     {
         public int X { get; set; }
         public int Y { get; set; }
-        //Blocks.Player
-        public Player()
-        {
-        }
+        public Stack<Blocks>[,] Grid;
 
+        //Blocks.Player
+        public Player(int y, int x, Stack<Blocks>[,] grid)
+        {
+            Y = y;
+            X = x;
+           
+            Grid = grid;
+            InitializingPosition(Y, X);
+        }
+        public void InitializingPosition(int y, int x)
+        {
+            Grid[y, x].Push(Blocks.Player);
+        }
+        /// <summary>
+        /// Count -1 (- players head)
+        /// </summary>
+        /// <returns></returns>
         public int GroundCount()
         {
-            //count -1 (- players head) Its not the same as Z. Z is -2 (- players head and - void block)
-            //return grid[Y, X] -1;
-            return 0;
+            return Grid[Y, X].Count() -1; 
         }
+        /// <summary>
+        /// - players head and - void block
+        /// </summary>
+        /// <returns></returns>
         public int Z()
         {
-            //return grid[Y, X].Count -2;
-            return 0;
+            return Grid[Y, X].Count -2;
         }
+       
         public void MoveTo(int newHeroY, int newHeroX)
         {
-            //grid[CurrentHeroY, CurrentHeroX].Pop();
-            //grid[newHeroY, newHeroX].Push(Blocks.Player);
+            Grid[Y, X].Pop();
+            Y = newHeroY;
+            X = newHeroX;
+            Grid[Y, X].Push(Blocks.Player);
         }
     }
 }
