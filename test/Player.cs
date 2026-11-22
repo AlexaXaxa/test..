@@ -29,7 +29,7 @@ namespace test
         /// <returns></returns>
         public int GroundCount()
         {
-            return Grid[Y, X].Count() -1; 
+            return Grid[Y, X].Count -1; 
         }
         /// <summary>
         /// - players head and - void block
@@ -39,7 +39,11 @@ namespace test
         {
             return Grid[Y, X].Count -2;
         }
-       
+        
+        public int Count()
+        {
+            return Grid[Y, X].Count;
+        }
         public void MoveTo(int newHeroY, int newHeroX)
         {
             Grid[Y, X].Pop();

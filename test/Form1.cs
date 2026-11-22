@@ -331,7 +331,7 @@ namespace test
                                 break;
                            
                             case (Blocks.Planks):
-                                color = Brushes.Yellow;
+                                color = Brushes.Brown;
                                 break;
                             default:
                                 //grass
@@ -340,14 +340,15 @@ namespace test
                         }
 
                         g.FillRectangle(color, columnPixelCoords, RowPixelCoords, tilesize - 1, tilesize - 1);
+                        DeepnessFilter(g,y, x, columnPixelCoords, RowPixelCoords, tilesize - 1, tilesize - 1);
                     }
                 }
 
-
+                #region inventory
                 int slotSize = 22;
                 int startX = (bitmapWidth - (3 * slotSize)) / 2;
                 int startY = bitmapHeight - slotSize - 5;
-
+                
                 for (int i = 0; i < 3; i++)
                 {
                     int x = startX + (i * slotSize);
@@ -372,36 +373,45 @@ namespace test
                         g.FillRectangle(Brushes.Yellow, x + 4, startY + 4, slotSize - 2 - 7, slotSize - 2 - 7);
                     }
                 }
+                #endregion
 
                 DisplayCoords();
             }
 
             Invalidate();
         }
+
+        private void DeepnessFilter(Graphics g, int y, int x, int columnPixelCoords, int RowPixelCoords, int ts, int ts2)
+        {
+            using (SolidBrush black = new SolidBrush(Color.Black))
+            using(SolidBrush white = new SolidBrush(Color.White))
+            {
+                if (grid[y, x].Count < player.Count())
+                {
+                    int difference = player.Count() - grid[y, x].Count;
+                    int alpha = difference * 50;
+                    black.Color = Color.FromArgb(alpha, 0, 0, 0);
+
+                    g.FillRectangle(black, columnPixelCoords, RowPixelCoords, ts, ts2);
+
+                }
+                else if (grid[y, x].Count > player.Count())
+                {
+                    int difference = grid[y, x].Count - player.Count();
+                    int alpha = difference * 50;
+                    white.Color = Color.FromArgb(alpha, 255, 255, 255);
+
+                    g.FillRectangle(white, columnPixelCoords, RowPixelCoords, ts, ts2);
+                }
+            }
+        }
+
         private void DisplayCoords()
         {
             int Zhero = player.Z();
             string s = "Hero Z-level: " + Zhero.ToString();
             coordsHero.Text = s;
         }
-        //private void DeepnessFilter()
-        //{
-        //    using (Graphics g = Graphics.FromImage(frameBuffer));
-
-        //    for (int x = 0; x < amountOfGridColumns; x++)
-        //    {
-        //        for (int y = 0; y < amountOfGridRows; y++)
-        //        {
-        //            grid[y, x]
-        //            grid[y, x].Count();
-        //        }
-        //    }
-        //            Brush brush = new SolidBrush(Color.FromArgb(alpha, 0, 0, 0));
-
-
-
-
-        //}
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
